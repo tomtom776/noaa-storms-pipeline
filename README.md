@@ -64,7 +64,7 @@ Downloads and outputs are kept in `data/raw/` and `data/processed/` (not committ
 
 ## What I learned
 
-1) You cannot rely on previously assumed URL format. NOAA changed the way that they formatted the file directories of their detailed storm data. They also changed the downloaded file type, data increments of data, and data headers.
+1) You cannot rely on previously assumed URL format. NOAA changed the way that they formatted the file directories of their detailed storm data. They also changed the downloaded file type, time increments of data, and data headers.
 2) Claude is a great in-line tutor, helps with strategy before committing code, and can troubleshoot machine errors like unusable GDAL installs.
 3) Test your assumptions against the data, not just the scaffold. The starter code assumed `BEGIN_LAT` / `BEGIN_LON` columns, but the current details files have no coordinates at all. Checking the real header is what led to joining on county and zone codes.
 4) Read the documentation for the codes before using them. I assumed the county FIPS columns identified a county on every row. NOAA's documentation says `cz_type` marks county (`C`), zone (`Z`) or marine (`M`) rows, and zone numbers are NWS forecast zones, not counties. Using them as county codes would have placed 40% of events in the wrong place.
