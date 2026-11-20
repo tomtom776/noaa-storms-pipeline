@@ -2,6 +2,8 @@
 
 A one-command pipeline that downloads a year of NOAA Storm Events data, locates each event, and writes a GeoParquet file of points ready for analysis in DuckDB, GeoPandas, or QGIS.
 
+![Pipeline animation](data/reference/PipelineGIF.gif)
+
 ## What it does
 
 `pipeline.sh` takes a year (default: 2024) and:
