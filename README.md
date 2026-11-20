@@ -36,7 +36,7 @@ The output has a `location_source` column (`county`, `zone`, or empty) and a `ge
 - **Source:** [NOAA Storm Events Database](https://www.ncei.noaa.gov/data/storm-events/)
 - **License:** Public domain (US federal data)
 - **What's in it:** storm events in the United States and its territories for the given year, including type, location (county or zone), and damages
-- **Tested years:** 2022 and 2024. Older years may differ (legacy `.csv.gz` files aren't decompressed, and some years list overlapping files that would be double-counted).
+- **Tested years:** 2022, 2023 and 2024. Older years may differ (legacy `.csv.gz` files aren't decompressed, and some years list overlapping files that would be double-counted).
 
 ## How to run it
 

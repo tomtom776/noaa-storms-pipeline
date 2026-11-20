@@ -23,7 +23,7 @@
 # error); the OSGeo4W GDAL 3.13.0 works. Check with:
 #   ogr2ogr --version
 #
-# Tested on 2022 and 2024. Older years may differ: legacy .csv.gz files are
+# Tested on 2022, 2023 and 2024. Older years may differ: legacy .csv.gz files are
 # not decompressed, and some years list overlapping files that would be
 # double-counted.
 
