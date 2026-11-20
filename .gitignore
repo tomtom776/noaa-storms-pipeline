@@ -1,5 +1,7 @@
-# Ignore all downloaded and processed data
-data/
+# Ignore downloaded and processed data, but keep the small reference files
+# (data/reference/) that the pipeline needs to locate events.
+data/*
+!data/reference/
 
 # OS noise
 .DS_Store

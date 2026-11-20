@@ -1,14 +1,31 @@
 #!/usr/bin/env bash
 #
-# pipeline.sh — Download a year of NOAA Storm Events, convert to GeoParquet.
+# pipeline.sh — Download a year of NOAA Storm Events and convert it to a
+# GeoParquet file of points.
 #
 # Usage:   ./pipeline.sh [YEAR]
 # Example: ./pipeline.sh 2024
 #
-# Requires: bash, curl, gunzip, ogr2ogr (GDAL >= 3.5)
+# Steps:
+#   1. Create the data directories.
+#   2. Download the year's monthly StormEvents "details" CSVs from NOAA.
+#   3. Merge them, locate each event by joining to the reference files in
+#      data/reference/ (Census county points, NWS zone points), and write
+#      data/processed/storms_YEAR.parquet.
 #
-# This is a starter scaffold. Read the comments. Replace the [TODO] markers
-# with the actual logic. Do not change the structure unless you have a reason.
+# The details CSVs carry no coordinates, so geometry is the center of the
+# event's county (cz_type 'C') or NWS forecast zone (all other events).
+# Events that can't be matched keep a NULL geometry.
+#
+# Requires: bash 4+ (mapfile), curl, and ogr2ogr from a GDAL (>= 3.5) that
+# can WRITE GeoParquet and supports the SQLite SQL dialect. Some builds can't
+# write geometry to Parquet (the QGIS 4.2.3 build fails with a "thrift"
+# error); the OSGeo4W GDAL 3.13.0 works. Check with:
+#   ogr2ogr --version
+#
+# Tested on 2022 and 2024. Older years may differ: legacy .csv.gz files are
+# not decompressed, and some years list overlapping files that would be
+# double-counted.
 
 set -euo pipefail
 
@@ -35,20 +52,19 @@ OUT_PARQUET="${PROCESSED_DIR}/storms_${YEAR}.parquet"
 
 echo "[1/3] Setting up directories"
 
-mkdir -p "$RAW_DIR" "$PROCESSED_DIR"
-# [TODO] Use mkdir -p to create RAW_DIR and PROCESSED_DIR. Both should be
-# safe to call even if the directories already exist.
+mkdir -p "$RAW_DIR" "$PROCESSED_DIR"   # safe to re-run if they already exist
 
 # -----------------------------------------------------------------------------
-# Step 2: Download the raw file
+# Step 2: Download the raw files
 # -----------------------------------------------------------------------------
 
 echo "[2/3] Downloading details files for ${YEAR}"
 
 # --- Discover the details files for this year from the NOAA directory listing ---
-# Matches the monthly pattern (StormEvents_details_sYYYYMMDD_eYYYYMMDD_cYYYYMMDD.csv)
-# and the legacy annual pattern (StormEvents_details-ftp_v1.0_dYYYY_cYYYYMMDD.csv.gz).
+# Recent years are monthly files: StormEvents_details_sYYYYMMDD_eYYYYMMDD_cYYYYMMDD.csv
+# (the c-date is when NOAA created/republished the file).
 # If NOAA republished a file, there may be two with different c-dates; keep the newest.
+# The pattern also matches legacy .csv.gz names, but Step 3 only reads .csv files.
 INDEX_HTML="$(curl -fsSL --retry 3 "$YEAR_URL")" || {
   echo "Could not fetch directory listing: $YEAR_URL" >&2
   exit 1
